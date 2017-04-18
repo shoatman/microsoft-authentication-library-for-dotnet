@@ -56,6 +56,9 @@ namespace Microsoft.Identity.Client
 
             AcquireTokenOnBehalfOfWithScopeUser = 520,
             AcquireTokenOnBehalfOfWithScopeUserAuthority = 521,
+
+            AcquireTokenForClientWithScope = 726,
+            AcquireTokenForClientWithScopeRefresh = 727,
         }
 
         public ApiEvent() : base(EventNamePrefix + "api_event") {}
