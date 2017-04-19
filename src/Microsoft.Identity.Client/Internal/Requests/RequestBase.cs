@@ -116,18 +116,25 @@ namespace Microsoft.Identity.Client.Internal.Requests
             var apiEvent = new ApiEvent()
             {
                 ApiId = ApiId,
-                UiBehavior = "TBD",  // TODO: What is supposed to be put here?
                 ValidationStatus = AuthenticationRequestParameters.ValidateAuthority.ToString(),
                 TenantId = "TBD",  // TODO: Get it from IdToken
                 UserId = AuthenticationRequestParameters.User != null ? AuthenticationRequestParameters.User.Identifier : "",
                 WasSuccessful = false
             };
+
             if (AuthenticationRequestParameters.Authority != null)
             {
                 apiEvent.Authority = AuthenticationRequestParameters.Authority.CanonicalAuthority;
                 apiEvent.AuthorityType = AuthenticationRequestParameters.Authority.AuthorityType.ToString();
             }
+
+            var thisInteractiveRequest = this as InteractiveRequest;
+            if (thisInteractiveRequest != null)
+            {
+                apiEvent.UiBehavior = thisInteractiveRequest._UIBehavior.PromptValue;
+            }
             Telemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
+
             try
             {
                 //authority endpoints resolution and validation
