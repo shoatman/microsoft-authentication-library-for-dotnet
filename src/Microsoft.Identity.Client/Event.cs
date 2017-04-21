@@ -39,6 +39,8 @@ namespace Microsoft.Identity.Client
         protected const string ElapsedTime = EventNamePrefix + "elapsed_time";
         private readonly long _startTimestamp;
 
+        public const string TenantPlaceHolder = "<tenant>"; // It is used to replace the real tenant in telemetry info
+
         public EventBase(string eventName) : this(eventName, new Dictionary<string, string>()) {}
 
         protected static long CurrentUnixTimeMilliseconds()
@@ -57,6 +59,26 @@ namespace Microsoft.Identity.Client
         public void Stop()
         {
             this[ElapsedTime] = (CurrentUnixTimeMilliseconds() - _startTimestamp).ToString();  // It is a duration
+        }
+
+        public static string ScrubTenant(string absolutePath) // Note: There is also a Unit Test case for this helper
+        {
+            if (string.IsNullOrEmpty(absolutePath) || absolutePath[0] != '/')
+            {
+                throw new ArgumentException("Requires an absolute path");
+            }
+            var pieces = absolutePath.Split('/'); // It looks like {"", "common", "oauth2", "v2.0", "token"}
+            if (pieces.Length >= 2)
+            {
+                string b2cAuthorityPrefix = "tfp";
+                int tenantPosition = pieces[1] == b2cAuthorityPrefix ? 2 : 1;
+                if (tenantPosition < pieces.Length)
+                {
+                    // Replace it rather than remove it. Otherwise the end result would misleadingly look like a complete URL while it is actually not.
+                    pieces[tenantPosition] = TenantPlaceHolder;
+                }
+            }
+            return String.Join("/", pieces);
         }
     }
 }
