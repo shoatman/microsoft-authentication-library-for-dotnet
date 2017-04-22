@@ -124,7 +124,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             if (AuthenticationRequestParameters.Authority != null)
             {
-                apiEvent.Authority = AuthenticationRequestParameters.Authority.CanonicalAuthority;
+                apiEvent.Authority = EventBase.ScrubTenant(new Uri(AuthenticationRequestParameters.Authority.CanonicalAuthority));
                 apiEvent.AuthorityType = AuthenticationRequestParameters.Authority.AuthorityType.ToString();
             }
 
