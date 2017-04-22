@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Client.Internal.Instance;
 
 namespace Microsoft.Identity.Client
 {
@@ -70,8 +71,7 @@ namespace Microsoft.Identity.Client
             var pieces = absolutePath.Split('/'); // It looks like {"", "common", "oauth2", "v2.0", "token"}
             if (pieces.Length >= 2)
             {
-                string b2cAuthorityPrefix = "tfp";
-                int tenantPosition = pieces[1] == b2cAuthorityPrefix ? 2 : 1;
+                int tenantPosition = pieces[1] == B2CAuthority.Prefix ? 2 : 1;
                 if (tenantPosition < pieces.Length)
                 {
                     // Replace it rather than remove it. Otherwise the end result would misleadingly look like a complete URL while it is actually not.

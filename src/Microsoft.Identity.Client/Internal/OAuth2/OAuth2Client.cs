@@ -91,9 +91,14 @@ namespace Microsoft.Identity.Client.Internal.OAuth2
             Uri endpointUri = CreateFullEndpointUri(endPoint);
             var httpEvent = new HttpEvent()
             {
-                HttpPath = endpointUri.Scheme + "://" + endpointUri.Authority + EventBase.ScrubTenant(endpointUri.AbsolutePath),
                 QueryParams = String.Join("&", MsalHelpers.ParseKeyValueList(endpointUri.Query, '&', false, true, requestContext).Keys)
             };
+            // only collect telemetry field HttpPath for well-known hosts, omit B2C
+            if (AadAuthority.IsInTrustedHostList(endpointUri.Host) && !endpointUri.AbsolutePath.StartsWith("/"+B2CAuthority.Prefix))
+            {
+                httpEvent.HttpPath = endpointUri.Scheme + "://" + endpointUri.Authority +
+                                     EventBase.ScrubTenant(endpointUri.AbsolutePath);
+            }
             Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {
