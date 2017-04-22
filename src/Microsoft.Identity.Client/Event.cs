@@ -80,5 +80,31 @@ namespace Microsoft.Identity.Client
             }
             return String.Join("/", pieces);
         }
+
+        public static string ScrubTenant(Uri uri) // Note: There is also a Unit Test case for this helper
+        {
+            if (!uri.IsAbsoluteUri)
+            {
+                throw new ArgumentException("Requires an absolute uri");
+            }
+            // only collect telemetry for well-known hosts, // omit B2C ???
+            if (!AadAuthority.IsInTrustedHostList(uri.Host)) // || uri.AbsolutePath.StartsWith("/" + B2CAuthority.Prefix))
+            {
+                return null;
+            }
+
+            var pieces = uri.AbsolutePath.Split('/'); // It looks like {"", "common", "oauth2", "v2.0", "token"}
+            if (pieces.Length >= 2)
+            {
+                int tenantPosition = pieces[1] == B2CAuthority.Prefix ? 2 : 1;
+                if (tenantPosition < pieces.Length)
+                {
+                    // Replace it rather than remove it. Otherwise the end result would misleadingly look like a complete URL while it is actually not.
+                    pieces[tenantPosition] = TenantPlaceHolder;
+                }
+            }
+            string scrubbedPath = String.Join("/", pieces);
+            return uri.Scheme + "://" + uri.Authority + scrubbedPath;
+        }
     }
 }
