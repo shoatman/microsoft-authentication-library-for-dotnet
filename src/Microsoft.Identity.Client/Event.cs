@@ -62,25 +62,6 @@ namespace Microsoft.Identity.Client
             this[ElapsedTime] = (CurrentUnixTimeMilliseconds() - _startTimestamp).ToString();  // It is a duration
         }
 
-        public static string ScrubTenant(string absolutePath) // Note: There is also a Unit Test case for this helper
-        {
-            if (string.IsNullOrEmpty(absolutePath) || absolutePath[0] != '/')
-            {
-                throw new ArgumentException("Requires an absolute path");
-            }
-            var pieces = absolutePath.Split('/'); // It looks like {"", "common", "oauth2", "v2.0", "token"}
-            if (pieces.Length >= 2)
-            {
-                int tenantPosition = pieces[1] == B2CAuthority.Prefix ? 2 : 1;
-                if (tenantPosition < pieces.Length)
-                {
-                    // Replace it rather than remove it. Otherwise the end result would misleadingly look like a complete URL while it is actually not.
-                    pieces[tenantPosition] = TenantPlaceHolder;
-                }
-            }
-            return String.Join("/", pieces);
-        }
-
         public static string ScrubTenant(Uri uri) // Note: There is also a Unit Test case for this helper
         {
             if (!uri.IsAbsoluteUri)
