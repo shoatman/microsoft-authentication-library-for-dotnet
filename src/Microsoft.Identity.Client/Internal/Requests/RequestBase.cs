@@ -117,7 +117,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
             {
                 ApiId = ApiId,
                 ValidationStatus = AuthenticationRequestParameters.ValidateAuthority.ToString(),
-                TenantId = "TBD",  // TODO: Get it from IdToken
                 UserId = AuthenticationRequestParameters.User != null ? AuthenticationRequestParameters.User.Identifier : "",
                 WasSuccessful = false
             };
@@ -143,6 +142,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 result = PostTokenRequest();
                 await PostRunAsync(result).ConfigureAwait(false);
 
+                apiEvent.TenantId = result.TenantId;
+                apiEvent.UserId = result.UniqueId;
                 apiEvent.WasSuccessful = true;
                 return result;
             }
